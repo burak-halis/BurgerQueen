@@ -13,6 +13,7 @@ namespace BurgerQueen.ContextDb.Concretes
         private readonly IEFContext _context;
         private readonly Dictionary<string, object> _repositoryDictionary = new Dictionary<string, object>();
 
+
         public UnitOfWork(IEFContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
