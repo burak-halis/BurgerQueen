@@ -16,5 +16,7 @@ namespace BurgerQueen.Services.Abstracts
         Task CreateUserAsync(ApplicationUserAddDTO userDTO);
         Task UpdateUserAsync(ApplicationUserUpdateDTO userDTO);
         Task DeleteUserAsync(string userId);
+        Task UpdatePasswordAsync(PasswordUpdateDTO passwordUpdateDTO);
+
     }
 }

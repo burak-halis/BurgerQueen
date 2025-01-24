@@ -22,6 +22,7 @@ namespace BurgerQueen.ContextDb.Concretes
     {
         public BaseContext(DbContextOptions<BaseContext> options) : base(options) { }
 
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

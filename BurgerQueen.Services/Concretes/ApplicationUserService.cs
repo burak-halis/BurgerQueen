@@ -23,6 +23,20 @@ namespace BurgerQueen.Services.Concretes
             _userManager = userManager;
         }
 
+        public async Task UpdatePasswordAsync(PasswordUpdateDTO passwordUpdateDTO)
+        {
+            var user = await _userManager.FindByIdAsync(passwordUpdateDTO.UserId);
+            if (user == null)
+            {
+                throw new Exception("Kullanıcı bulunamadı.");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, passwordUpdateDTO.CurrentPassword, passwordUpdateDTO.NewPassword);
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
         public async Task<IEnumerable<ApplicationUserListDTO>> GetAllUsersAsync()
         {
             var users = await _userManager.Users.ToListAsync();
