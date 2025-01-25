@@ -39,6 +39,7 @@ namespace BurgerQueen.Services.Concretes
         }
         public async Task<IEnumerable<ApplicationUserListDTO>> GetAllUsersAsync()
         {
+
             var users = await _userManager.Users.ToListAsync();
             return users.Select(u => new ApplicationUserListDTO
             {
