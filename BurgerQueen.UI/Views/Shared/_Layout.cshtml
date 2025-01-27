@@ -3,10 +3,20 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BurgerQueen.UI</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/BurgerQueen.UI.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - BurgerQueen</title>
+    <meta name="description" content="BurgerQueen'de en lezzetli burgerleri keşfedin.">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Kendi CSS dosyanız -->
+    <link rel="stylesheet" href="~/css/site.css">
 </head>
 <body>
     <header>
@@ -19,13 +29,35 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        <!-- _Layout.cshtml içindeki nav bar ya da menü kısmında -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="ApplicationUser" asp-action="Register">Kayıt Ol</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="ApplicationUser" asp-action="Profile">Profil</a>
+                            </li>
+                        }
                     </ul>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form asp-controller="ApplicationUser" asp-action="Logout" method="post">
+                            <button type="submit" class="btn btn-outline-danger">Çıkış Yap</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="btn btn-outline-success" asp-controller="ApplicationUser" asp-action="Login">Giriş Yap</a>
+                    }
                 </div>
             </div>
         </nav>
@@ -38,12 +70,40 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - BurgerQueen.UI - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            © 2025 - BurgerQueen.UI - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Bootstrap JS (jQuery dahil) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>
+
+    <!-- Kendi JavaScript dosyanız -->
+    <script src="~/js/site.js"></script>
+
+    <!-- Form doğrulama için JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

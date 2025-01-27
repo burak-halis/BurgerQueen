@@ -25,8 +25,25 @@ builder.Services.AddDbContext<BaseContext>(options =>
 
 
 // Identity configuration
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<BaseContext>();
+// builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+//    .AddEntityFrameworkStores<BaseContext>(); true: Kullanýcýlarýn hesap doðrulamasýný (örneðin, e-posta doðrulamasý) tamamlamadan oturum açamayacaklarý anlamýna gelir. false: Kullanýcýlarýn e-posta adreslerini doðrulamadan da oturum açabilmelerine izin verir.
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+})
+.AddEntityFrameworkStores<BaseContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+});
 
 // Registering services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -47,6 +64,7 @@ builder.Services.AddScoped<IOrderStatusHistoryService, OrderStatusHistoryService
 builder.Services.AddScoped<ISauceService, SauceService>();
 builder.Services.AddScoped<ISideItemService, SideItemService>();
 builder.Services.AddScoped<IEFContext, BaseContext>();
+builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
 
 var app = builder.Build();

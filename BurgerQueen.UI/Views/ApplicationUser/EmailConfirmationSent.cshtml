@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "E-posta Onaylandı";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">E-posta Onaylandı!</h4>
+        <p>E-posta adresinize bir doğrulama linki gönderdik. Lütfen e-postanızı kontrol edin ve hesabınızı doğrulayın.</p>
+        <hr>
+        <p class="mb-0">Teşekkür ederiz!</p>
+    </div>
+    <a href="@Url.Action("Login", "ApplicationUser")" class="btn btn-primary">Giriş Yap</a>
+</div>

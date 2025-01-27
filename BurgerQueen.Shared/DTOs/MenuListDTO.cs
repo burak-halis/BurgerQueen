@@ -12,5 +12,7 @@ namespace BurgerQueen.Shared.DTOs
         public string Name { get; set; }
         public decimal? TotalPrice { get; set; }
         public string ImagePath { get; set; }
+        public decimal? Discount { get; set; } // Eklenen özellik
+
     }
 }

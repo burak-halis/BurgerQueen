@@ -37,9 +37,9 @@ namespace BurgerQueen.Services.Concretes
                 throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
             }
         }
+
         public async Task<IEnumerable<ApplicationUserListDTO>> GetAllUsersAsync()
         {
-
             var users = await _userManager.Users.ToListAsync();
             return users.Select(u => new ApplicationUserListDTO
             {
@@ -63,7 +63,8 @@ namespace BurgerQueen.Services.Concretes
             return user != null ? ToListDTO(user) : null;
         }
 
-        public async Task CreateUserAsync(ApplicationUserAddDTO userDTO)
+        // Dönüş tipi Task<IdentityResult> olarak güncellendi
+        public async Task<IdentityResult> CreateUserAsync(ApplicationUserAddDTO userDTO)
         {
             var user = new ApplicationUser
             {
@@ -73,14 +74,11 @@ namespace BurgerQueen.Services.Concretes
                 LastName = userDTO.LastName
             };
 
-            var result = await _userManager.CreateAsync(user, userDTO.Password);
-            if (!result.Succeeded)
-            {
-                throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
-            }
+            return await _userManager.CreateAsync(user, userDTO.Password);
         }
 
-        public async Task UpdateUserAsync(ApplicationUserUpdateDTO userDTO)
+        // UpdateUserAsync metodunun dönüş tipi Task<IdentityResult> olarak değiştirildi
+        public async Task<IdentityResult> UpdateUserAsync(ApplicationUserUpdateDTO userDTO)
         {
             var user = await _userManager.FindByIdAsync(userDTO.Id);
             if (user != null)
@@ -90,11 +88,7 @@ namespace BurgerQueen.Services.Concretes
                 user.FirstName = userDTO.FirstName;
                 user.LastName = userDTO.LastName;
 
-                var result = await _userManager.UpdateAsync(user);
-                if (!result.Succeeded)
-                {
-                    throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
-                }
+                return await _userManager.UpdateAsync(user);
             }
             else
             {

@@ -12,17 +12,17 @@ namespace BurgerQueen.Entity
     public class ApplicationUser : IdentityUser
     {
         // Kullanıcı profili bilgileri
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public string Address { get; set; }
-        public string City { get; set; }
-        public string Country { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
 
         // Kullanıcının tercihleri veya ek bilgiler
-        public string ProfilePictureUrl { get; set; }
-        public bool IsSubscribedToNewsletter { get; set; }
-        public string PreferredLanguage { get; set; } // "en", "tr" gibi
+        public string? ProfilePictureUrl { get; set; }
+        public bool? IsSubscribedToNewsletter { get; set; }
+        public string? PreferredLanguage { get; set; } // "en", "tr" gibi
 
         // Kullanıcının siparişleri
         public virtual ICollection<Order> Orders { get; set; }
@@ -37,9 +37,9 @@ namespace BurgerQueen.Entity
 
         // Diğer olası ilişkiler veya ek alanlar
         public DateTime? LastLoginDate { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }
-        public bool IsActive { get; set; } = true;
+        public bool? IsActive { get; set; } = true;
     }
 
 }

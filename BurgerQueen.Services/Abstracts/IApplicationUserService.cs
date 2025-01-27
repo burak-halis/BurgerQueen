@@ -1,5 +1,6 @@
 ﻿using BurgerQueen.Entity;
 using BurgerQueen.Shared.DTOs;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,9 @@ namespace BurgerQueen.Services.Abstracts
         Task<IEnumerable<ApplicationUserListDTO>> GetAllUsersAsync();
         Task<ApplicationUserListDTO> GetUserByIdAsync(string userId);
         Task<ApplicationUserListDTO> GetUserByEmailAsync(string email);
-        Task CreateUserAsync(ApplicationUserAddDTO userDTO);
-        Task UpdateUserAsync(ApplicationUserUpdateDTO userDTO);
+        Task<IdentityResult> CreateUserAsync(ApplicationUserAddDTO userDTO);
+        Task<IdentityResult> UpdateUserAsync(ApplicationUserUpdateDTO userDTO); // Burası değişti
         Task DeleteUserAsync(string userId);
         Task UpdatePasswordAsync(PasswordUpdateDTO passwordUpdateDTO);
-
     }
 }

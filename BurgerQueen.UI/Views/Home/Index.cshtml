@@ -1,8 +1,147 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model BurgerQueen.UI.Models.VM.HomeIndexViewModel
+@{
+    ViewData["Title"] = "BurgerQueen - Anasayfa";
+    Layout = "_Layout"; // Eğer varsayılan layout'u kullanıyorsanız
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid mt-4">
+    <div class="jumbotron text-center bg-danger text-white">
+        <h1 class="display-4">Hoşgeldiniz BurgerQueen'e!</h1>
+        <p class="lead">En lezzetli burgerler, içecekler ve daha fazlası burada!</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2 class="mb-4">Öne Çıkan Burgerler</h2>
+            <div class="row">
+                @foreach (var burger in Model.FeaturedBurgers)
+                {
+                    <div class="col-sm-6 mb-3">
+                        <div class="card h-100">
+                            <img src="@burger.ImagePath" class="card-img-top" alt="@burger.Name" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">@burger.Name</h5>
+                                <p class="card-text"><strong>Fiyat:</strong> @burger.Price TL</p>
+                                <p class="card-text"><strong>Popülerlik:</strong> @burger.Popularity</p>
+                                <a href="#" class="btn btn-outline-danger">Detaylar</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h2 class="mb-4">Öne Çıkan Menüler</h2>
+            <div class="row">
+                @foreach (var menu in Model.FeaturedMenus)
+                {
+                    <div class="col-sm-6 mb-3">
+                        <div class="card h-100">
+                            <img src="@menu.ImagePath" class="card-img-top" alt="@menu.Name" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">@menu.Name</h5>
+                                <p class="card-text"><strong>Toplam Fiyat:</strong> @menu.TotalPrice TL</p>
+                                @if (menu.Discount.HasValue)
+                                {
+                                    <p class="card-text text-success"><strong>İndirim:</strong> @menu.Discount.Value%</p>
+                                }
+                                <a href="#" class="btn btn-outline-danger">Detaylar</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <h2 class="mb-4">Öne Çıkan İçecekler</h2>
+            @foreach (var drink in Model.FeaturedDrinks)
+            {
+                <div class="card mb-3">
+                    <img src="@drink.ImagePath" class="card-img-top" alt="@drink.Name" style="height: 150px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@drink.Name</h5>
+                        <p class="card-text"><strong>Fiyat:</strong> @drink.Price TL</p>
+                        <p class="card-text">@(drink.IsSugary ? "Şekerli" : "Şekersiz")</p>
+                        <a href="#" class="btn btn-outline-danger">Detaylar</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <h2 class="mb-4">Öne Çıkan Patatesler</h2>
+            @foreach (var fry in Model.FeaturedFries)
+            {
+                <div class="card mb-3">
+                    <img src="@fry.ImagePath" class="card-img-top" alt="@fry.Name" style="height: 150px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@fry.Name</h5>
+                        <p class="card-text"><strong>Fiyat:</strong> @fry.Price TL</p>
+                        <p class="card-text">@(fry.IsSpicy ? "Baharatlı" : "Baharatlı Değil")</p>
+                        <a href="#" class="btn btn-outline-danger">Detaylar</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <h2 class="mb-4">Öne Çıkan Yan Ürünler</h2>
+            @foreach (var sideItem in Model.FeaturedSideItems)
+            {
+                <div class="card mb-3">
+                    <img src="@sideItem.ImagePath" class="card-img-top" alt="@sideItem.Name" style="height: 150px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@sideItem.Name</h5>
+                        <p class="card-text"><strong>Fiyat:</strong> @sideItem.Price TL</p>
+                        <p class="card-text">@(sideItem.IsVegetarian ? "Vejetaryen" : "Vejetaryen Değil")</p>
+                        <a href="#" class="btn btn-outline-danger">Detaylar</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h2 class="mb-4">Öne Çıkan Soslar</h2>
+            @foreach (var sauce in Model.FeaturedSauces)
+            {
+                <div class="card mb-3">
+                    <img src="@sauce.ImagePath" class="card-img-top" alt="@sauce.Name" style="height: 150px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@sauce.Name</h5>
+                        <p class="card-text"><strong>Fiyat:</strong> @sauce.Price TL</p>
+                        <a href="#" class="btn btn-outline-danger">Detaylar</a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <h2 class="mb-4">Haftalık Özel</h2>
+            @if (Model.WeeklySpecial != null)
+            {
+                <div class="card">
+                    <img src="@Model.WeeklySpecial.ImagePath" class="card-img-top" alt="@Model.WeeklySpecial.Name" style="height: 300px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@Model.WeeklySpecial.Name</h5>
+                        <p class="card-text"><strong>Toplam Fiyat:</strong> @Model.WeeklySpecial.TotalPrice TL</p>
+                        @if (Model.WeeklySpecial.Discount.HasValue)
+                        {
+                            <p class="card-text text-success"><strong>İndirim:</strong> @Model.WeeklySpecial.Discount.Value%</p>
+                        }
+                        <a href="#" class="btn btn-outline-danger">Detaylar</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p class="text-center">Bu hafta özel bir menü yok.</p>
+            }
+        </div>
+    </div>
 </div>

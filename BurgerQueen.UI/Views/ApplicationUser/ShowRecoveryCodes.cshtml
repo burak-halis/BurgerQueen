@@ -1,0 +1,15 @@
+﻿@model IEnumerable<string>
+@{
+    ViewData["Title"] = "Kurtarma Kodları";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+<p>Bu kodları güvenli bir yerde saklayın. İki faktörlü doğrulama cihazınıza erişemezseniz, bu kodlarla hesabınıza erişim sağlayabilirsiniz:</p>
+
+<ul>
+    @foreach (var code in Model)
+    {
+        <li>@code</li>
+    }
+</ul>
