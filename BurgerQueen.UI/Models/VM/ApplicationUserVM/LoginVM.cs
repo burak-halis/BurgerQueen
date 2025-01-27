@@ -4,15 +4,14 @@ namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 {
     public class LoginVM
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "E-posta veya kullanıcı adı zorunludur.")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Şifre zorunludur.")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [Display(Name = "Beni Hatırla?")]
+        [Display(Name = "Beni hatırla")]
         public bool RememberMe { get; set; }
     }
 }

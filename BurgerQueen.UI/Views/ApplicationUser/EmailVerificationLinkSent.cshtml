@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "E-posta Onay Linki Gönderildi";
+}
+
+<div class="container mt-5">
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">E-posta Onay Linki Gönderildi</h4>
+        <p>E-posta adresinize bir doğrulama linki gönderdik. Lütfen e-postanızı kontrol edin ve hesabınızı doğrulayın.</p>
+        <hr>
+        <p class="mb-0">E-posta kutunuzda göremiyorsanız, spam veya gereksiz klasörünüzü kontrol etmeyi unutmayın.</p>
+    </div>
+    <a class="btn btn-primary" href="@Url.Action("Index", "Home")">Anasayfaya Dön</a>
+</div>

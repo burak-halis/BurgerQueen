@@ -6,18 +6,31 @@ namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
     {
         public string Id { get; set; }
 
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "E-posta adresi zorunludur.")]
+        [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]
         public string Email { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required(ErrorMessage = "Ad zorunludur.")]
+        [StringLength(50, ErrorMessage = "Ad en fazla 50 karakter olabilir.")]
         public string FirstName { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required(ErrorMessage = "Soyad zorunludur.")]
+        [StringLength(50, ErrorMessage = "Soyad en fazla 50 karakter olabilir.")]
         public string LastName { get; set; }
 
-        // Diğer güncellenebilir alanlar buraya eklenebilir
+        [StringLength(100, ErrorMessage = "Adres en fazla 100 karakter olabilir.")]
+        public string Address { get; set; }
+
+        [Phone]
+        public string PhoneNumber { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? DateOfBirth { get; set; }
+
+        public string ProfilePictureUrl { get; set; }
+
+        // Eğer dosya yükleme özelliği eklemek isterseniz:
+        [Display(Name = "Profil Resmi")]
+        public IFormFile ProfilePicture { get; set; }
     }
 }

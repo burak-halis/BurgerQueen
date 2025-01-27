@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BurgerQueen.Entity;
 using Microsoft.AspNetCore.Identity;
+using BurgerQueen.UI.Filters;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,12 +39,26 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
 .AddEntityFrameworkStores<BaseContext>();
 
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    // SecurityStamp doðrulama aralýðý
+    options.ValidationInterval = TimeSpan.FromMinutes(30);
+});
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
 });
+
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<CustomExceptionFilter>();
+});
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(o =>
+    o.TokenLifespan = TimeSpan.FromHours(3));
 
 // Registering services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -69,6 +84,8 @@ builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
 var app = builder.Build();
 
+app.UseHttpsRedirection();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -76,6 +93,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
