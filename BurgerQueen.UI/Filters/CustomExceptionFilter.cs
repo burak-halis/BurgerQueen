@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BurgerQueen.UI.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.Diagnostics;
 using System.Security.Claims;
 
 namespace BurgerQueen.UI.Filters
@@ -18,12 +21,17 @@ namespace BurgerQueen.UI.Filters
             var exception = context.Exception;
             var user = context.HttpContext.User;
 
-            // Hata loglaması
             _logger.LogError(exception, "İstisna oluştu. Kullanıcı: {UserId}, İstek Yolu: {Path}", user?.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Anonim", context.HttpContext.Request.Path);
 
-            // Hata işleme - bir hata sayfasına yönlendirme
-            context.Result = new RedirectToActionResult("Error", "Home", null);
-            context.ExceptionHandled = true; // İstisnayı işlediğimizi belirtiyoruz
+            context.Result = new ViewResult
+            {
+                ViewName = "Error",
+                ViewData = new ViewDataDictionary(new Microsoft.AspNetCore.Mvc.ModelBinding.EmptyModelMetadataProvider(), new Microsoft.AspNetCore.Mvc.ModelBinding.ModelStateDictionary())
+                {
+                    Model = new ErrorViewModel { RequestId = Activity.Current?.Id ?? context.HttpContext.TraceIdentifier }
+                }
+            };
+            context.ExceptionHandled = true;
         }
     }
 }

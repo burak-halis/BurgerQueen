@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 {
@@ -19,10 +18,6 @@ namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
 
-        [Required(ErrorMessage = "Lütfen bir rol seçin.")]
-        [Display(Name = "Rol Seçiniz")]
-        public string SelectedRole { get; set; }
-
-        public IEnumerable<SelectListItem> AvailableRoles { get; set; }
+        // AvailableRoles ve SelectedRole alanlarını kaldırıyoruz
     }
 }

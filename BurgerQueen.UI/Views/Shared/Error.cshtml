@@ -1,10 +1,12 @@
-﻿@model ErrorViewModel
+﻿@using BurgerQueen.UI.Models
+
+@model ErrorViewModel
 
 @{
     ViewData["Title"] = "Hata";
 }
 
-<h1 class="text-danger">Hata.</h1>
+<h1 class="text-danger">@ViewData["Title"]</h1>
 <h2 class="text-danger">Bir hata oluştu.</h2>
 
 @if (Model.ShowRequestId)

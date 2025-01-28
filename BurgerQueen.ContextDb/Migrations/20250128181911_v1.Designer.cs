@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BurgerQueen.ContextDb.Migrations
 {
     [DbContext(typeof(BaseContext))]
-    [Migration("20250127115219_v1")]
+    [Migration("20250128181911_v1")]
     partial class v1
     {
         /// <inheritdoc />

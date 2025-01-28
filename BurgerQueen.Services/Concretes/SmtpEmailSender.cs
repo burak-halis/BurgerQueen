@@ -1,13 +1,9 @@
 ﻿using BurgerQueen.Services.Abstracts;
 using Microsoft.Extensions.Configuration;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BurgerQueen.Services.Concretes
@@ -15,10 +11,12 @@ namespace BurgerQueen.Services.Concretes
     public class SmtpEmailSender : IEmailSender
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<SmtpEmailSender> _logger;
 
-        public SmtpEmailSender(IConfiguration configuration)
+        public SmtpEmailSender(IConfiguration configuration, ILogger<SmtpEmailSender> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
@@ -26,9 +24,8 @@ namespace BurgerQueen.Services.Concretes
             var smtpServer = _configuration["SmtpSettings:Server"];
             var smtpPort = int.Parse(_configuration["SmtpSettings:Port"]);
             var smtpUsername = _configuration["SmtpSettings:Username"];
-
-            // Şifreyi ortam değişkeninden alıyoruz
             var smtpPassword = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? throw new Exception("SMTP_PASSWORD ortam değişkeni ayarlanmamış.");
+            var senderEmail = _configuration["SmtpSettings:SenderEmail"];
 
             try
             {
@@ -40,7 +37,7 @@ namespace BurgerQueen.Services.Concretes
 
                     using (var message = new MailMessage())
                     {
-                        message.From = new MailAddress(smtpUsername);
+                        message.From = new MailAddress(senderEmail);
                         message.To.Add(new MailAddress(email));
                         message.Subject = subject;
                         message.Body = htmlMessage;
@@ -49,11 +46,13 @@ namespace BurgerQueen.Services.Concretes
                         await smtpClient.SendMailAsync(message);
                     }
                 }
+
+                _logger.LogInformation($"E-posta {email} adresine başarıyla gönderildi.");
             }
             catch (Exception ex)
             {
-                // Hata loglama
-                Console.WriteLine($"E-posta gönderilirken hata oluştu: {ex.Message}");
+                _logger.LogError(ex, $"E-posta gönderilirken hata oluştu. Email: {email}, Hata: {ex.Message}");
+                throw; // Hata yukarıdaki katmana aktarılıyor, böylece işlem durdurulup kullanıcıya bildirilebilir
             }
         }
     }

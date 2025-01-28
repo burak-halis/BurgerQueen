@@ -5,15 +5,8 @@ using BurgerQueen.Services.Abstracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BurgerQueen.Entity;
-using Microsoft.AspNetCore.Identity;
 using BurgerQueen.UI.Filters;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,10 +17,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<BaseContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
 // Identity configuration
-// builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
-//    .AddEntityFrameworkStores<BaseContext>(); true: Kullanýcýlarýn hesap doðrulamasýný (örneðin, e-posta doðrulamasý) tamamlamadan oturum açamayacaklarý anlamýna gelir. false: Kullanýcýlarýn e-posta adreslerini doðrulamadan da oturum açabilmelerine izin verir.
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -37,13 +27,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
 })
-.AddEntityFrameworkStores<BaseContext>();
+.AddRoles<IdentityRole>() // Bu satýrý ekleyin
+.AddEntityFrameworkStores<BaseContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
-{
-    // SecurityStamp doðrulama aralýðý
-    options.ValidationInterval = TimeSpan.FromMinutes(30);
-});
+    options.ValidationInterval = TimeSpan.FromMinutes(30));
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -52,13 +41,8 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Lockout.AllowedForNewUsers = true;
 });
 
-builder.Services.AddControllersWithViews(options =>
-{
-    options.Filters.Add<CustomExceptionFilter>();
-});
-
-builder.Services.Configure<DataProtectionTokenProviderOptions>(o =>
-    o.TokenLifespan = TimeSpan.FromHours(3));
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+    options.TokenLifespan = TimeSpan.FromHours(3));
 
 // Registering services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -81,19 +65,13 @@ builder.Services.AddScoped<ISideItemService, SideItemService>();
 builder.Services.AddScoped<IEFContext, BaseContext>();
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
 
-
 var app = builder.Build();
-
-app.UseHttpsRedirection();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

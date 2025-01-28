@@ -27,7 +27,6 @@ namespace BurgerQueen.UI.Controllers
         private readonly ILogger<ApplicationUserController> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
-
         private static readonly Dictionary<string, string> _customErrorMessages = new Dictionary<string, string>
     {
         { "DuplicateUserName", "Bu kullanıcı adı zaten kullanımda." },
@@ -99,11 +98,11 @@ namespace BurgerQueen.UI.Controllers
         }
 
         public ApplicationUserController(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
-            ILogger<ApplicationUserController> logger,
-            IEmailSender emailSender,
-            RoleManager<IdentityRole> roleManager)
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
+        ILogger<ApplicationUserController> logger,
+        IEmailSender emailSender,
+        RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -112,17 +111,12 @@ namespace BurgerQueen.UI.Controllers
             _roleManager = roleManager;
         }
 
-        // Kullanıcı işlemleri
+
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Register()
         {
-            var roles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-            var viewModel = new RegisterVM
-            {
-                AvailableRoles = roles.Select(r => new SelectListItem { Value = r, Text = r })
-            };
-            return View(viewModel);
+            return View(new RegisterVM());
         }
 
         [HttpPost]
@@ -145,6 +139,8 @@ namespace BurgerQueen.UI.Controllers
 
                     if (result.Succeeded)
                     {
+                        _logger.LogInformation("Kullanıcı {Email} başarıyla oluşturuldu.", userVM.Email);
+
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         var callbackUrl = Url.Action(
                             "EmailVerificationComplete",
@@ -152,32 +148,38 @@ namespace BurgerQueen.UI.Controllers
                             new { userId = user.Id, code = code },
                             protocol: HttpContext.Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(user.Email, "E-posta Doğrulama",
-                            $"Lütfen e-postanızı doğrulamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
+                        try
+                        {
+                            await _emailSender.SendEmailAsync(user.Email, "E-posta Doğrulama",
+                                $"Lütfen e-postanızı doğrulamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
 
-                        if (!string.IsNullOrEmpty(userVM.SelectedRole))
-                        {
-                            await _userManager.AddToRoleAsync(user, userVM.SelectedRole);
-                        }
-                        else
-                        {
+                            _logger.LogInformation("E-posta doğrulama linki {Email} adresine gönderildi.", user.Email);
+
                             await _userManager.AddToRoleAsync(user, "User");
+
+                            var ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+                            var maskedIpAddress = IPAddressMasker.MaskIpAddress(ipAddress);
+                            _logger.LogInformation("Kullanıcı {Email} kayıt oldu. IP Adresi: {IpAddress}", userVM.Email, maskedIpAddress);
+
+                            return RedirectToAction("EmailVerificationLinkSent", "ApplicationUser");
                         }
-
-                        var ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
-                        var maskedIpAddress = IPAddressMasker.MaskIpAddress(ipAddress);
-                        _logger.LogInformation("Kullanıcı {Email} kayıt oldu. IP Adresi: {IpAddress}", userVM.Email, maskedIpAddress);
-
-                        return RedirectToAction("EmailVerificationLinkSent", "ApplicationUser");
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "E-posta gönderimi sırasında hata oluştu. Email: {Email}", user.Email);
+                            ModelState.AddModelError(string.Empty, "E-posta doğrulama linki gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+                            return View(userVM);
+                        }
                     }
-
-                    AddErrorsToModelState(result.Errors);
+                    else
+                    {
+                        AddErrorsToModelState(result.Errors);
+                    }
                 }
                 catch (Exception ex)
                 {
                     var ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
                     var maskedIpAddress = IPAddressMasker.MaskIpAddress(ipAddress);
-                    _logger.LogError(ex, "Register işleminde hata oluştu. Email: {Email}, IP Adresi: {IpAddress}", MaskEmail(userVM.Email), maskedIpAddress);
+                    _logger.LogError(ex, "Register işleminde genel bir hata oluştu. Email: {Email}, IP Adresi: {IpAddress}", MaskEmail(userVM.Email), maskedIpAddress);
                     return RedirectToAction("Error", "Home");
                 }
             }
