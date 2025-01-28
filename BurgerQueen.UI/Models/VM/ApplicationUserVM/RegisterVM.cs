@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 {
-    public class ApplicationUserRegisterVM
+    public class RegisterVM
     {
         [Required(ErrorMessage = "E-posta adresi zorunludur.")]
         [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi giriniz.")]

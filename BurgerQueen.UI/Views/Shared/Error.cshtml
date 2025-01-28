@@ -1,14 +1,17 @@
-﻿@{
+﻿@model ErrorViewModel
+
+@{
     ViewData["Title"] = "Hata";
-    Layout = "_Layout";
 }
 
-<div class="container mt-5">
-    <h1 class="text-danger">Hata</h1>
-    <h4>Beklenmeyen bir hata oluştu.</h4>
-    <hr />
+<h1 class="text-danger">Hata.</h1>
+<h2 class="text-danger">Bir hata oluştu.</h2>
+
+@if (Model.ShowRequestId)
+{
     <p>
-        Lütfen daha sonra tekrar deneyin. Sorun devam ederse, destek ekibimize başvurun.
+        <strong>Hata ID'si:</strong> <code>@Model.RequestId</code>
     </p>
-    <a class="btn btn-primary" href="@Url.Action("Index", "Home")">Anasayfaya Dön</a>
-</div>
+}
+
+<a href="/">Ana Sayfaya Dön</a>

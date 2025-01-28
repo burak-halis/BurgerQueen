@@ -1,31 +1,37 @@
-﻿@model LoginWith2faViewModel
+﻿@using BurgerQueen.UI.Models.VM.ApplicationUserVM
+@model LoginWith2faVM
+
 @{
-    ViewData["Title"] = "2FA Doğrulama";
+    ViewData["Title"] = "İki Faktörlü Doğrulama";
 }
 
-<h2>@ViewData["Title"]</h2>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post" asp-action="LoginWith2fa">
-            <input asp-for="RememberMe" type="hidden" />
-            <input asp-for="ReturnUrl" type="hidden" />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="TwoFactorCode"></label>
-                <input asp-for="TwoFactorCode" class="form-control" autocomplete="off" />
-                <span asp-validation-for="TwoFactorCode" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div class="checkbox">
-                    <label asp-for="RememberMachine">
-                        <input asp-for="RememberMachine" />
-                        @Html.DisplayNameFor(m => m.RememberMachine)
-                    </label>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <p>İki faktörlü doğrulamayı tamamlamak için kimlik doğrulama uygulamanızdan aldığınız kodu girin.</p>
+                    <form asp-action="LoginWith2fa" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="TwoFactorCode">Doğrulama Kodu</label>
+                            <input asp-for="TwoFactorCode" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="TwoFactorCode" class="text-danger"></span>
+                        </div>
+                        <div class="form-group form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">Bu cihazı hatırla</label>
+                        </div>
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <button type="submit" class="btn btn-primary">Doğrula</button>
+                    </form>
                 </div>
             </div>
-            <button type="submit" class="btn btn-default">Giriş Yap</button>
-        </form>
+        </div>
     </div>
 </div>
 

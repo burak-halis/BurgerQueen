@@ -17,5 +17,6 @@ namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 
         [Display(Name = "Geri Dönüş URL'si")]
         public string ReturnUrl { get; set; }
+
     }
 }

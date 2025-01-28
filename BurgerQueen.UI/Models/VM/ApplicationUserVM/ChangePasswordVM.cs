@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 {
-    public class PasswordUpdateVM
+    public class ChangePasswordVM
     {
-        [HiddenInput]
-        public string Token { get; set; }
-
         [Required]
         [DataType(DataType.Password)]
         public string CurrentPassword { get; set; }
@@ -19,7 +15,7 @@ namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 
         [Required]
         [DataType(DataType.Password)]
-        [Compare("NewPassword", ErrorMessage = "Şifreler eşleşmiyor.")]
+        [Compare("NewPassword", ErrorMessage = "Yeni şifreler eşleşmiyor.")]
         public string ConfirmPassword { get; set; }
     }
 }

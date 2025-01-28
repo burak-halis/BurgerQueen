@@ -1,0 +1,26 @@
+﻿@using BurgerQueen.UI.Models.VM.ApplicationUserVM
+@model ConfirmDeleteAccountVM
+
+@{
+    ViewData["Title"] = "Hesabı Silme Onayı";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>@Model.Email</strong>, hesabınızı silmek üzeresiniz. Bu işlem geri alınamaz. Emin misiniz?</p>
+                    <form asp-action="DeleteAccountConfirmed" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">Evet, Hesabımı Sil</button>
+                        <a asp-action="Profile" class="btn btn-secondary">Hayır, İptal Et</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

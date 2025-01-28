@@ -118,7 +118,7 @@ namespace BurgerQueen.UI.Controllers
         public async Task<IActionResult> Register()
         {
             var roles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-            var viewModel = new ApplicationUserRegisterVM
+            var viewModel = new RegisterVM
             {
                 AvailableRoles = roles.Select(r => new SelectListItem { Value = r, Text = r })
             };
@@ -128,7 +128,7 @@ namespace BurgerQueen.UI.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(ApplicationUserRegisterVM userVM)
+        public async Task<IActionResult> Register(RegisterVM userVM)
         {
             if (ModelState.IsValid)
             {
@@ -276,7 +276,7 @@ namespace BurgerQueen.UI.Controllers
                 authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
             }
 
-            return View(new Enable2faViewModel
+            return View(new Enable2faVM
             {
                 SharedKey = FormatKey(authenticatorKey),
                 AuthenticatorUri = GenerateQrCodeUri(user.Email, authenticatorKey)
@@ -285,7 +285,7 @@ namespace BurgerQueen.UI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EnableTwoFactorAuthentication(Enable2faViewModel model)
+        public async Task<IActionResult> EnableTwoFactorAuthentication(Enable2faVM model)
         {
             if (!ModelState.IsValid)
             {
@@ -338,7 +338,7 @@ namespace BurgerQueen.UI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DisableTwoFactorAuthentication(Disable2faViewModel model)
+        public async Task<IActionResult> DisableTwoFactorAuthentication(Disable2faVM model)
         {
             if (!ModelState.IsValid)
             {
@@ -372,7 +372,7 @@ namespace BurgerQueen.UI.Controllers
                 return RedirectToAction(nameof(Profile));
             }
 
-            return View(recoveryCodes);
+            return View(new ShowRecoveryCodesVM { RecoveryCodes = recoveryCodes.ToList() });
         }
 
         // Şifre İşlemleri
@@ -383,7 +383,16 @@ namespace BurgerQueen.UI.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                // Captcha doğrulaması için basit bir kontrol. Gerçek uygulamalarda daha karmaşık kontroller gerekebilir.
+                if (!string.Equals(model.Captcha, "1234", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError("Captcha", "Captcha doğrulaması başarısız.");
+                    return View(model);
+                }
+
+                var user = await _userManager.FindByEmailAsync(model.Email) ??
+                           await _userManager.FindByNameAsync(model.UserName);
+
                 if (user == null)
                 {
                     return RedirectToAction("ForgotPasswordConfirmation");
@@ -396,8 +405,17 @@ namespace BurgerQueen.UI.Controllers
                     new { userId = user.Id, code = code },
                     protocol: HttpContext.Request.Scheme);
 
-                await _emailSender.SendEmailAsync(model.Email, "Şifre Sıfırlama",
-                    $"Şifrenizi sıfırlamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
+                try
+                {
+                    await _emailSender.SendEmailAsync(model.Email, "Şifre Sıfırlama",
+                        $"Şifrenizi sıfırlamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Şifre sıfırlama e-postası gönderilirken hata oluştu.");
+                    ModelState.AddModelError(string.Empty, "Şifre sıfırlama e-postası gönderilemedi. Lütfen daha sonra tekrar deneyin.");
+                    return View(model);
+                }
 
                 return RedirectToAction("ForgotPasswordConfirmation");
             }
@@ -418,22 +436,42 @@ namespace BurgerQueen.UI.Controllers
         {
             if (userId == null || code == null)
             {
+                _logger.LogWarning("EmailVerificationComplete metodu için eksik parametreler.");
                 return RedirectToAction("Index", "Home");
+            }
+
+            if (!Guid.TryParse(userId, out _))
+            {
+                _logger.LogWarning($"Geçersiz kullanıcı ID'si: {userId}");
+                return BadRequest("Geçersiz kullanıcı ID'si.");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
+                _logger.LogWarning($"Kullanıcı ID'si {userId} ile eşleşen bir kullanıcı bulunamadı.");
                 return NotFound($"Kullanıcı ID'si {userId} ile eşleşen bir kullanıcı bulunamadı.");
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            if (result.Succeeded)
+            try
             {
-                return View("EmailVerificationComplete");
+                var result = await _userManager.ConfirmEmailAsync(user, code);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation($"Kullanıcı {userId} için e-posta doğrulama başarılı oldu.");
+                    return View("EmailVerificationComplete");
+                }
+                else
+                {
+                    _logger.LogWarning($"Kullanıcı {userId} için e-posta doğrulama başarısız oldu. Hatalar: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+                }
             }
-
-            return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Kullanıcı {userId} için e-posta doğrulama işlemi sırasında hata oluştu.");
+                return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            }
         }
 
         [HttpGet]
@@ -450,21 +488,27 @@ namespace BurgerQueen.UI.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
+                _logger.LogWarning("Profil görüntüleme işlemi için kullanıcı bulunamadı.");
                 return NotFound();
             }
 
-            if (!User.IsInRole("Admin") && userId != null && userId != user.Id)
+            if (userId != null)
             {
-                return Forbid();
+                if (!User.IsInRole("Admin"))
+                {
+                    _logger.LogWarning($"Kullanıcı {User.Identity.Name} başka bir kullanıcının (ID: {userId}) profilini görüntülemeye çalıştı.");
+                    return Forbid();
+                }
             }
 
-            var profileUser = await _userManager.FindByIdAsync(userId ?? user.Id);
+            var profileUser = userId == null ? user : await _userManager.FindByIdAsync(userId);
             if (profileUser == null)
             {
+                _logger.LogWarning($"ID'si {userId} olan kullanıcı bulunamadı.");
                 return NotFound();
             }
 
-            var userDTO = new ApplicationUserListDTO
+            var userVM = new ProfileVM
             {
                 Id = profileUser.Id,
                 UserName = profileUser.UserName,
@@ -473,7 +517,7 @@ namespace BurgerQueen.UI.Controllers
                 LastName = profileUser.LastName
             };
 
-            return View(userDTO);
+            return View(userVM);
         }
 
         [Authorize]
@@ -483,73 +527,96 @@ namespace BurgerQueen.UI.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
+                _logger.LogWarning("EditProfile işlemi için kullanıcı bulunamadı.");
                 return NotFound();
             }
 
-            var userDTO = new ApplicationUserUpdateVM
+            var userVM = new EditProfileVM
             {
                 Id = user.Id,
                 Email = user.Email,
                 FirstName = user.FirstName,
-                LastName = user.LastName
+                LastName = user.LastName,
+                Address = user.Address ?? string.Empty,
+                PhoneNumber = user.PhoneNumber ?? string.Empty,
+                DateOfBirth = user.DateOfBirth,
+                ProfilePictureUrl = user.ProfilePictureUrl ?? string.Empty
             };
 
-            return View(userDTO);
+            return View(userVM);
         }
 
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditProfile(ApplicationUserUpdateVM userVM)
+        public async Task<IActionResult> EditProfile(EditProfileVM model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
-                {
-                    var user = await _userManager.FindByIdAsync(userVM.Id);
-                    if (user == null)
-                    {
-                        return NotFound();
-                    }
-
-                    user.Email = userVM.Email;
-                    user.FirstName = userVM.FirstName;
-                    user.LastName = userVM.LastName;
-                    user.Address = userVM.Address;
-                    user.PhoneNumber = userVM.PhoneNumber;
-                    user.DateOfBirth = userVM.DateOfBirth;
-                    user.ProfilePictureUrl = userVM.ProfilePictureUrl;
-
-                    if (userVM.ProfilePicture != null)
-                    {
-                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "profileImages", userVM.ProfilePicture.FileName);
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await userVM.ProfilePicture.CopyToAsync(stream);
-                        }
-                        user.ProfilePictureUrl = "/profileImages/" + userVM.ProfilePicture.FileName;
-                    }
-
-                    var result = await _userManager.UpdateAsync(user);
-                    if (result.Succeeded)
-                    {
-                        await _emailSender.SendEmailAsync(user.Email, "Profil Bilgileri Güncellendi",
-                            $"Merhaba {user.FirstName},<br/>Profil bilgileriniz başarıyla güncellendi.");
-
-                        return RedirectToAction(nameof(Profile));
-                    }
-                    AddErrorsToModelState(result.Errors);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Profil güncellenirken hata oluştu. Email: {Email}", MaskEmail(userVM.Email));
-                    return RedirectToAction("Error", "Home");
-                }
+                return View(model);
             }
-            return View(userVM);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogWarning("EditProfile işlemi için kullanıcı bulunamadı.");
+                return NotFound();
+            }
+
+            user.Email = model.Email;
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Address = model.Address;
+            user.PhoneNumber = model.PhoneNumber;
+            user.DateOfBirth = model.DateOfBirth;
+
+            // Profil resmi yükleme işlemi
+            if (model.ProfilePicture != null && model.ProfilePicture.Length > 0)
+            {
+                var uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ProfilePicture.FileName;
+                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "profiles");
+
+                if (!Directory.Exists(uploadsPath))
+                {
+                    Directory.CreateDirectory(uploadsPath);
+                }
+
+                var filePath = Path.Combine(uploadsPath, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await model.ProfilePicture.CopyToAsync(fileStream);
+                }
+
+                // Eski resmi silme işlemi (isteğe bağlı)
+                if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                {
+                    var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.ProfilePictureUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldFilePath))
+                    {
+                        System.IO.File.Delete(oldFilePath);
+                    }
+                }
+
+                // Yeni profil resmi URL'si
+                user.ProfilePictureUrl = Path.Combine("images", "profiles", uniqueFileName);
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Kullanıcı {UserName} profilini başarıyla güncelledi.", user.UserName);
+                return RedirectToAction(nameof(Profile));
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
         }
 
-        // Şifre Değişiklik İşlemleri
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -558,7 +625,15 @@ namespace BurgerQueen.UI.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
+                _logger.LogWarning("Şifre değişikliği talebi için kullanıcı bulunamadı.");
                 return NotFound();
+            }
+
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                _logger.LogWarning("Kullanıcı {UserId} için email doğrulanmamış, şifre değişikliği talebi reddedildi.", user.Id);
+                ModelState.AddModelError(string.Empty, "E-postanız doğrulanmamış, lütfen önce e-postanızı doğrulayın.");
+                return View("Error"); // veya uygun bir hata sayfasına yönlendirme
             }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -568,10 +643,22 @@ namespace BurgerQueen.UI.Controllers
                 new { userId = user.Id, token = token },
                 HttpContext.Request.Scheme);
 
-            await _emailSender.SendEmailAsync(user.Email, "Şifre Değişikliği Onayı",
-                $"Şifrenizi değiştirmek istediğinizi onaylamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
+            try
+            {
+                await _emailSender.SendEmailAsync(user.Email, "Şifre Değişikliği Onayı",
+                    $"Şifrenizi değiştirmek istediğinizi onaylamak için <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>buraya tıklayın</a>.");
 
-            return RedirectToAction("PasswordChangeRequested");
+                // ViewModel ile bilgi ver
+                return RedirectToAction("PasswordChangeRequested", new PasswordChangeRequestedVM
+                {
+                    Message = "Şifre değişiklik talebiniz için bir e-posta gönderildi. Lütfen e-postanızı kontrol edin."
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Şifre değişikliği doğrulama e-postası gönderilirken hata oluştu.");
+                return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            }
         }
 
         [HttpGet]
@@ -580,16 +667,75 @@ namespace BurgerQueen.UI.Controllers
         {
             if (userId == null || token == null)
             {
+                _logger.LogWarning("ConfirmPasswordChange için eksik kullanıcı ID'si veya token.");
                 return RedirectToAction("Index", "Home");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
+                _logger.LogWarning($"ConfirmPasswordChange için kullanıcı ID'si {userId} ile eşleşen kullanıcı bulunamadı.");
                 return NotFound($"Kullanıcı ID'si {userId} ile eşleşen bir kullanıcı bulunamadı.");
             }
 
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                ModelState.AddModelError(string.Empty, "E-postanız doğrulanmamış. Lütfen önce e-postanızı doğrulayın.");
+                return View(new PasswordUpdateVM());
+            }
+
+            if (!await _userManager.VerifyUserTokenAsync(user, _userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token))
+            {
+                _logger.LogWarning($"Kullanıcı {userId} için geçersiz token.");
+                ModelState.AddModelError(string.Empty, "Geçersiz veya süresi dolmuş token.");
+                return View(new PasswordUpdateVM());
+            }
+
             var model = new PasswordUpdateVM { Token = token };
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmPasswordChange(string userId, string token, PasswordUpdateVM model)
+        {
+            // Modelin geçerli olup olmadığını kontrol et
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Kullanıcıyı ID'si ile bul
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning($"ConfirmPasswordChange için kullanıcı ID'si {userId} ile eşleşen kullanıcı bulunamadı.");
+                return NotFound($"Kullanıcı ID'si {userId} ile eşleşen bir kullanıcı bulunamadı.");
+            }
+
+            // Token'ı doğrula
+            if (!await _userManager.VerifyUserTokenAsync(user, _userManager.Options.Tokens.PasswordResetTokenProvider, "ResetPassword", token))
+            {
+                _logger.LogWarning($"Kullanıcı {userId} için geçersiz token.");
+                ModelState.AddModelError(string.Empty, "Geçersiz veya süresi dolmuş token.");
+                return View(model);
+            }
+
+            // Şifreyi sıfırla
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+            if (result.Succeeded)
+            {
+                _logger.LogInformation($"Kullanıcı {user.Id} için şifre başarıyla değiştirildi.");
+                return RedirectToAction("PasswordChanged");
+            }
+
+            // Eğer hata varsa, hataları ekle ve formu tekrar göster
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
             return View(model);
         }
 
@@ -597,22 +743,23 @@ namespace BurgerQueen.UI.Controllers
         [HttpGet]
         public IActionResult ChangePassword()
         {
-            return View();
+            _logger.LogInformation("Kullanıcı şifre değiştirme sayfasına erişti.");
+            return View(new ChangePasswordVM());
         }
 
+        [Authorize] // AllowAnonymous yerine
         [HttpPost]
-        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(PasswordUpdateVM model)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
                 if (model.NewPassword != model.ConfirmPassword)
                 {
                     ModelState.AddModelError(string.Empty, "Yeni şifreler eşleşmiyor.");
@@ -622,6 +769,7 @@ namespace BurgerQueen.UI.Controllers
                 var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
                 if (result.Succeeded)
                 {
+                    _logger.LogInformation($"Kullanıcı {user.Id} şifresini başarıyla değiştirdi.");
                     await _userManager.UpdateSecurityStampAsync(user);
                     await _signInManager.SignOutAsync();
 
@@ -630,12 +778,18 @@ namespace BurgerQueen.UI.Controllers
 
                     return RedirectToAction("Login", "ApplicationUser");
                 }
-                AddErrorsToModelState(result.Errors);
+                else
+                {
+                    _logger.LogWarning($"Kullanıcı {user.Id} şifre değiştirme işlemi başarısız oldu. Hatalar: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
             }
             return View(model);
         }
 
-        // Hesap Silme
         [Authorize]
         [HttpGet]
         public async Task<IActionResult> DeleteAccount()
@@ -645,13 +799,77 @@ namespace BurgerQueen.UI.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+
+            _logger.LogInformation($"Kullanıcı {user.Id} hesap silme sayfasına erişti.");
+
+            var deleteAccountVM = new DeleteAccountVM
+            {
+                Id = user.Id,
+                Email = user.Email
+                // Diğer alanlar buraya eklenebilir
+            };
+
+            return View(deleteAccountVM);
         }
 
+        [Authorize]
         [HttpPost]
-        [ActionName("DeleteAccount")]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAccount(DeleteAccountVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Şifre doğrulaması
+            if (!await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                ModelState.AddModelError(string.Empty, "Şifre yanlış.");
+                return View(model);
+            }
+
+            // Hesap silme işlemi
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                await _signInManager.SignOutAsync();
+                _logger.LogInformation($"Kullanıcı {user.Id} hesabını silmeyi başarıyla tamamladı.");
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View(model);
+        }
+
+        [Authorize]
+        [HttpGet]
         public async Task<IActionResult> DeleteAccountConfirmed()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var confirmDeleteVM = new ConfirmDeleteAccountVM { Email = user.Email };
+            return View(confirmDeleteVM);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAccountConfirmed(ConfirmDeleteAccountVM model)
         {
             try
             {
@@ -661,10 +879,18 @@ namespace BurgerQueen.UI.Controllers
                     return NotFound();
                 }
 
+                // ViewModel kullanarak ek bir doğrulama yapabiliriz, ama burada sadece email adresini kontrol ediyoruz:
+                if (model.Email != user.Email)
+                {
+                    ModelState.AddModelError(string.Empty, "Email adresi eşleşmiyor.");
+                    return View(model);
+                }
+
                 var result = await _userManager.DeleteAsync(user);
                 if (result.Succeeded)
                 {
                     await _signInManager.SignOutAsync();
+                    _logger.LogInformation($"Kullanıcı {user.Id} hesabını silmeyi başarıyla tamamladı.");
                     return RedirectToAction("Index", "Home");
                 }
                 AddErrorsToModelState(result.Errors);
@@ -675,7 +901,7 @@ namespace BurgerQueen.UI.Controllers
                 _logger.LogError(ex, "Hesap silinirken hata oluştu. Email: {Email}", MaskEmail(user?.Email));
                 return RedirectToAction("Error", "Home");
             }
-            return View("DeleteAccount");
+            return View(model);
         }
 
         // Yardımcı Metodlar
@@ -740,7 +966,8 @@ namespace BurgerQueen.UI.Controllers
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user == null)
             {
-                throw new InvalidOperationException($"Kullanıcı iki faktörlü doğrulama için bulunamadı.");
+                _logger.LogWarning($"Kullanıcı iki faktörlü doğrulama için bulunamadı.");
+                return RedirectToAction("Error", "Home");
             }
 
             return View(new LoginWith2faVM
@@ -763,7 +990,8 @@ namespace BurgerQueen.UI.Controllers
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user == null)
             {
-                throw new InvalidOperationException($"Kullanıcı iki faktörlü doğrulama için bulunamadı.");
+                _logger.LogWarning("İki faktörlü doğrulama için kullanıcı bulunamadı.");
+                return RedirectToAction("Error", "Home");
             }
 
             var authenticatorCode = model.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
@@ -772,46 +1000,22 @@ namespace BurgerQueen.UI.Controllers
 
             if (result.Succeeded)
             {
+                _logger.LogInformation($"Kullanıcı {user.Id} iki faktörlü doğrulama ile başarıyla giriş yaptı.");
                 return RedirectToLocal(returnUrl);
             }
             else if (result.IsLockedOut)
             {
+                _logger.LogWarning($"Kullanıcı {user.Id} iki faktörlü doğrulama ile giriş yapamadı. Hesap kilitli.");
                 ModelState.AddModelError(string.Empty, "Hesabınız kilitlendi. Lütfen daha sonra tekrar deneyin.");
                 return View("Lockout");
             }
             else
             {
+                _logger.LogWarning($"Kullanıcı {user.Id} iki faktörlü doğrulama ile giriş yapamadı. Geçersiz kod.");
                 ModelState.AddModelError(string.Empty, "Doğrulama kodu geçersiz.");
                 return View(model);
             }
         }
-    }
-
-    public class Enable2faViewModel
-    {
-        [Required]
-        [StringLength(7, ErrorMessage = "Kod 6 karakter uzunluğunda olmalıdır.", MinimumLength = 6)]
-        [Display(Name = "Doğrulama Kodu")]
-        public string Code { get; set; }
-
-        public string SharedKey { get; set; }
-
-        public string AuthenticatorUri { get; set; }
-    }
-
-    public class Disable2faViewModel
-    {
-        [Required]
-        [StringLength(7, ErrorMessage = "Kod 6 karakter uzunluğunda olmalıdır.", MinimumLength = 6)]
-        [Display(Name = "Doğrulama Kodu")]
-        public string TwoFactorCode { get; set; }
-    }
-
-
-
-    public interface IEmailSender
-    {
-        Task SendEmailAsync(string email, string subject, string message);
     }
 }
 

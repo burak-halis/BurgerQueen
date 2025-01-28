@@ -1,15 +1,17 @@
-﻿@model IEnumerable<string>
+﻿@using BurgerQueen.UI.Models.VM.ApplicationUserVM
+@model ShowRecoveryCodesVM
 @{
     ViewData["Title"] = "Kurtarma Kodları";
 }
 
-<h2>@ViewData["Title"]</h2>
-<hr />
-<p>Bu kodları güvenli bir yerde saklayın. İki faktörlü doğrulama cihazınıza erişemezseniz, bu kodlarla hesabınıza erişim sağlayabilirsiniz:</p>
+<h2>Kurtarma Kodları</h2>
+<p>İki faktörlü kimlik doğrulamanız başarıyla aktifleştirildi. İşte yeni kurtarma kodlarınız:</p>
 
 <ul>
-    @foreach (var code in Model)
+    @foreach (var code in Model.RecoveryCodes)
     {
         <li>@code</li>
     }
 </ul>
+
+<p>Bu kodları güvenli bir yerde saklayın. İki faktörlü doğrulama cihazınıza erişemediğiniz durumlarda bu kodlarla sisteme giriş yapabilirsiniz.</p>

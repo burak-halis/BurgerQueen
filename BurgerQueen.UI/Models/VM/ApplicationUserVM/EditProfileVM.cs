@@ -2,7 +2,7 @@
 
 namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 {
-    public class ApplicationUserUpdateVM
+    public class EditProfileVM
     {
         public string Id { get; set; }
 
@@ -29,7 +29,6 @@ namespace BurgerQueen.UI.Models.VM.ApplicationUserVM
 
         public string ProfilePictureUrl { get; set; }
 
-        // Eğer dosya yükleme özelliği eklemek isterseniz:
         [Display(Name = "Profil Resmi")]
         public IFormFile ProfilePicture { get; set; }
     }

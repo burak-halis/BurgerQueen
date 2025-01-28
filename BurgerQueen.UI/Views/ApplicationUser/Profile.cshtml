@@ -1,49 +1,27 @@
-﻿@model BurgerQueen.Shared.DTOs.ApplicationUserListDTO
+﻿@using BurgerQueen.UI.Models.VM.ApplicationUserVM
+@model ProfileVM
+
 @{
     ViewData["Title"] = "Profil";
-    Layout = "_Layout"; // Varsayılan layout'u kullanıyoruz
 }
 
 <div class="container mt-5">
-    <div class="card">
-        <div class="card-header">
-            <h1 class="mb-0">Hoş Geldiniz, @Model.FirstName @Model.LastName</h1>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
-                    {
-                        <img src="@Model.ProfilePictureUrl" alt="Profil Resmi" class="img-fluid rounded-circle mx-auto d-block mb-3" style="max-width: 150px;">
-                    }
-                    else
-                    {
-                        <div class="text-center mb-3">
-                            <i class="fas fa-user-circle fa-5x text-secondary"></i>
-                        </div>
-                    }
-                    <div class="text-center">
-                        <a href="@Url.Action("EditProfile", "ApplicationUser")" class="btn btn-outline-secondary btn-block mb-2">Profili Düzenle</a>
-                        <a href="@Url.Action("ChangePassword", "ApplicationUser")" class="btn btn-outline-secondary btn-block mb-2">Şifreyi Değiştir</a>
-                        <a href="@Url.Action("DeleteAccount", "ApplicationUser")" class="btn btn-outline-danger btn-block mb-2">Hesabı Sil</a>
-                    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>@Model.FirstName @Model.LastName</h4>
                 </div>
-                <div class="col-md-8">
-                    <h5 class="card-title">Hesap Bilgileri</h5>
-                    <ul class="list-group mb-3">
-                        <li class="list-group-item"><strong>E-posta:</strong> @Model.Email</li>
-                        <li class="list-group-item"><strong>Kullanıcı Adı:</strong> @Model.UserName</li>
-                        <li class="list-group-item"><strong>Ad:</strong> @Model.FirstName</li>
-                        <li class="list-group-item"><strong>Soyad:</strong> @Model.LastName</li>
-                    </ul>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <a href="@Url.Action("Index", "Order")" class="btn btn-primary btn-block mb-2">Siparişlerim</a>
-                        </div>
-                        <div class="col-md-6">
-                            <a href="@Url.Action("Favorites", "ApplicationUser")" class="btn btn-primary btn-block mb-2">Favorilerim</a>
-                        </div>
+                <div class="card-body">
+                    <h5 class="card-title">@Model.UserName</h5>
+                    <p class="card-text"><strong>Email:</strong> @Model.Email</p>
+                    <p class="card-text"><strong>Kullanıcı ID:</strong> @Model.Id</p>
+                    <div class="text-center">
+                        <a asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-primary">Profili Düzenle</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="DeleteUser" asp-route-id="@Model.Id" class="btn btn-danger">Kullanıcıyı Sil</a>
+                        }
                     </div>
                 </div>
             </div>
