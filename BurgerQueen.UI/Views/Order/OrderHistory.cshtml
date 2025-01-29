@@ -1,0 +1,11 @@
+﻿@model IEnumerable<BurgerQueen.UI.Models.VM.OrderVM.OrderListVM>
+
+@{
+    ViewData["Title"] = "Sipariş Geçmişi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">Sipariş Geçmişi</h1>
+
+<!-- Bu view için içerik, Index view'ine benzer şekilde oluşturulabilir, sadece kullanıcıya özel siparişler gösterilir. -->
+@await Html.PartialAsync("_OrderListPartial", Model)

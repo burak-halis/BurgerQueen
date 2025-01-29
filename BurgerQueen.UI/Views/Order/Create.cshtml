@@ -1,0 +1,53 @@
+﻿@using System.Security.Claims
+@model BurgerQueen.UI.Models.VM.OrderVM.OrderAddVM
+
+@{
+    ViewData["Title"] = "Yeni Sipariş Ekle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Yeni Sipariş Ekle</h1>
+
+<form asp-action="Create">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="UserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
+
+    <div class="form-group">
+        <label asp-for="DeliveryAddress" class="control-label"></label>
+        <input asp-for="DeliveryAddress" class="form-control" />
+        <span asp-validation-for="DeliveryAddress" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ExpectedDeliveryDate" class="control-label"></label>
+        <input asp-for="ExpectedDeliveryDate" class="form-control" type="datetime-local" />
+        <span asp-validation-for="ExpectedDeliveryDate" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PaymentMethod" class="control-label"></label>
+        <input asp-for="PaymentMethod" class="form-control" />
+        <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="OrderNotes" class="control-label"></label>
+        <textarea asp-for="OrderNotes" class="form-control"></textarea>
+        <span asp-validation-for="OrderNotes" class="text-danger"></span>
+    </div>
+
+    <!-- Sipariş öğeleri için dinamik form alanları -->
+    <div id="orderItems">
+        @for (int i = 0; i < Model.OrderItems.Count; i++)
+        {
+            <div class="form-row">
+                <!-- Burada ilgili form alanları eklenmeli, örneğin burger, içecek vb. seçimi -->
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Sipariş Ver</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

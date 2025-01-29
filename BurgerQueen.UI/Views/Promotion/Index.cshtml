@@ -1,0 +1,42 @@
+﻿@model IEnumerable<BurgerQueen.UI.Models.VM.PromotionVM.PromotionListVM>
+
+@{
+    ViewData["Title"] = "Promosyonlar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">Promosyonlar</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Yeni Promosyon Ekle</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ad</th>
+            <th>Başlangıç Tarihi</th>
+            <th>Bitiş Tarihi</th>
+            <th>İndirim Oranı</th>
+            <th>Aktif</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                <td>@(item.EndDate?.ToString("dd/MM/yyyy") ?? "Süresiz")</td>
+                <td>@item.DiscountPercentage%</td>
+                <td>@(item.IsActive ? "Evet" : "Hayır")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Düzenle</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Sil</a>
+                    <a asp-action="ApplyPromotion" asp-route-id="@item.Id" class="btn btn-sm btn-success">Uygula</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

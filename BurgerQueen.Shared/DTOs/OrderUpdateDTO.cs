@@ -16,5 +16,7 @@ namespace BurgerQueen.Shared.DTOs
         public string OrderNotes { get; set; }
         public OrderStatus Status { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
+        public DateTime OrderDate { get; set; }
+        public decimal TotalPrice { get; set; } // Eklendi
     }
 }

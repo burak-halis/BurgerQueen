@@ -1,0 +1,29 @@
+﻿@model BurgerQueen.UI.Models.VM.ReviewVM.ReviewListVM
+
+@{
+    ViewData["Title"] = "Yorumu Sil";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Yorumu Sil</h1>
+
+<h3>Bu yorumu silmek istediğinize emin misiniz?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Başlık:</dt>
+        <dd class="col-sm-9">@Model.Title</dd>
+        <dt class="col-sm-3">Ürün:</dt>
+        <dd class="col-sm-9">@Model.ProductName</dd>
+        <dt class="col-sm-3">Değerlendirme:</dt>
+        <dd class="col-sm-9">@Model.Rating</dd>
+        <dt class="col-sm-3">Kullanıcı:</dt>
+        <dd class="col-sm-9">@Model.UserName</dd>
+    </dl>
+
+    <form asp-action="DeleteReview">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Sil" class="btn btn-danger" /> |
+        <a asp-action="Index">Listeye Dön</a>
+    </form>
+</div>

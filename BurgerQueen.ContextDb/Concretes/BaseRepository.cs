@@ -101,5 +101,14 @@ namespace BurgerQueen.ContextDb.Concretes
         {
             return await _context.SaveChangesAsync();
         }
+        public async Task<T> GetByIdAsync(Expression<Func<T, bool>> exp)
+        {
+            return await _context.Set<T>().FirstOrDefaultAsync(exp);
+        }
+
+        public async Task<List<T>> GetByAsync(Expression<Func<T, bool>> exp)
+        {
+            return await _context.Set<T>().Where(exp).ToListAsync();
+        }
     }
 }

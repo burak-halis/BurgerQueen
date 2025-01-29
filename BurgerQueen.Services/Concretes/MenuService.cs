@@ -1,4 +1,5 @@
 ﻿using BurgerQueen.ContextDb.Abstracts;
+using BurgerQueen.ContextDb.Concretes;
 using BurgerQueen.Entity;
 using BurgerQueen.Services.Abstracts;
 using BurgerQueen.Shared.DTOs;
@@ -12,7 +13,12 @@ namespace BurgerQueen.Services.Concretes
 {
     public class MenuService : BaseService<Menu>, IMenuService
     {
-        public MenuService(IUnitOfWork unitOfWork) : base(unitOfWork) { }
+        private readonly IUnitOfWork _unitOfWork;
+
+        public MenuService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
 
         public async Task AddMenuDTO(MenuAddDTO dto)
         {
@@ -85,6 +91,17 @@ namespace BurgerQueen.Services.Concretes
                 Name = m.Name,
                 TotalPrice = m.TotalPrice,
                 ImagePath = m.ImagePath
+            }).ToList();
+        }
+        public async Task<List<MenuBurgerListDTO>> GetBurgersForMenuAsync(int menuId)
+        {
+            var menuBurgers = await _unitOfWork.Repository<MenuBurger>().GetBy(mb => mb.MenuId == menuId);
+            return menuBurgers.Select(mb => new MenuBurgerListDTO
+            {
+                MenuId = mb.MenuId,
+                BurgerId = mb.BurgerId,
+                BurgerName = mb.Burger.Name // Burada Burger entity'sinden name'i alıyoruz
+                                            // Diğer özellikler...
             }).ToList();
         }
     }

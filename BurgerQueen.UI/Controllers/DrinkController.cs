@@ -1,6 +1,7 @@
 ﻿using BurgerQueen.Entity;
 using BurgerQueen.Services.Abstracts;
 using BurgerQueen.Shared.DTOs;
+using BurgerQueen.UI.Models.VM.DrinkVM;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -58,7 +59,23 @@ namespace BurgerQueen.UI.Controllers
             {
                 return NotFound();
             }
-            return View(drink.ToDrinkUpdateVM()); // DTO'dan ViewModel'e dönüşüm
+
+            // DTO'dan ViewModel'e dönüşüm burada yapılır
+            var drinkVM = new DrinkUpdateVM
+            {
+                Id = drink.Id,
+                Name = drink.Name,
+                Description = drink.Description,
+                Price = drink.Price,
+                ImagePath = drink.ImagePath,
+                IsSugary = drink.IsSugary,
+                IsAlcoholic = drink.IsAlcoholic,
+                Calories = drink.Calories,
+                Sizes = drink.Sizes,
+                Ingredients = drink.Ingredients
+            };
+
+            return View(drinkVM);
         }
 
         [HttpPost]

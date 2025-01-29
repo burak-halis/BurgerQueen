@@ -1,0 +1,54 @@
+﻿@model BurgerQueen.UI.Models.VM.OrderVM.OrderDetailsVM
+
+@{
+    ViewData["Title"] = "Sipariş Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">Sipariş Detayları</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Sipariş Tarihi:</dt>
+        <dd class="col-sm-9">@Model.Order.OrderDate</dd>
+        <dt class="col-sm-3">Durum:</dt>
+        <dd class="col-sm-9">@Model.Order.Status</dd>
+        <dt class="col-sm-3">Toplam Fiyat:</dt>
+        <dd class="col-sm-9">@Model.Order.TotalPrice TL</dd>
+        <dt class="col-sm-3">Teslimat Adresi:</dt>
+        <dd class="col-sm-9">@Model.Order.DeliveryAddress</dd>
+        <dt class="col-sm-3">Ödeme Metodu:</dt>
+        <dd class="col-sm-9">@Model.Order.PaymentMethod</dd>
+        <dt class="col-sm-3">Ödeme Durumu:</dt>
+        <dd class="col-sm-9">@Model.Order.PaymentStatus</dd>
+        <dt class="col-sm-3">Notlar:</dt>
+        <dd class="col-sm-9">@Model.Order.OrderNotes</dd>
+    </dl>
+</div>
+
+<h4>Sipariş Öğeleri</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Ürün</th>
+            <th>Boyut</th>
+            <th>Miktar</th>
+            <th>Fiyat</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Size</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price TL</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="btn-group" role="group">
+    <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+</div>

@@ -28,7 +28,7 @@ namespace BurgerQueen.Services.Concretes
             var order = new Order
             {
                 UserId = dto.UserId,
-                OrderDate = DateTime.Now,
+                OrderDate = DateTime.UtcNow,
                 Status = OrderStatus.Pending,
                 DeliveryAddress = dto.DeliveryAddress,
                 ExpectedDeliveryDate = dto.ExpectedDeliveryDate,
@@ -110,7 +110,9 @@ namespace BurgerQueen.Services.Concretes
                     PaymentMethod = order.PaymentMethod,
                     OrderNotes = order.OrderNotes,
                     Status = order.Status,
-                    PaymentStatus = order.PaymentStatus
+                    PaymentStatus = order.PaymentStatus,
+                    OrderDate = order.OrderDate,
+                    TotalPrice = order.TotalPrice
                 };
             }
             return null;
@@ -143,6 +145,18 @@ namespace BurgerQueen.Services.Concretes
                 Quantity = i.Quantity,
                 Price = i.Price
             }).ToList();
+        }
+
+        public async Task<IEnumerable<OrderListDTO>> GetUserOrders(string userId)
+        {
+            var orders = await base.GetByDTO(o => o.UserId == userId);
+            return orders.Select(o => new OrderListDTO
+            {
+                Id = o.Id,
+                OrderDate = o.OrderDate,
+                Status = o.Status,
+                TotalPrice = o.TotalPrice
+            });
         }
     }
 }

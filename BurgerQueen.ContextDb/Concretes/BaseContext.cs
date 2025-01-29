@@ -50,6 +50,12 @@ namespace BurgerQueen.ContextDb.Concretes
             builder.ApplyConfiguration(new FavoriteMenuMap());
             builder.ApplyConfiguration(new FavoriteSideItemMap());
             builder.ApplyConfiguration(new FavoriteSauceMap());
+            builder.ApplyConfiguration(new CartItemMap());
+            builder.ApplyConfiguration(new PromotionMap());
+            builder.ApplyConfiguration(new ReviewMap());
+
+
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

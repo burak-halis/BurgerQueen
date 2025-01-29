@@ -1,0 +1,31 @@
+﻿@model BurgerQueen.UI.Models.VM.PromotionVM.PromotionUpdateVM
+
+@{
+    ViewData["Title"] = "Promosyon Düzenle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@Model.Name Düzenle</h1>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <!-- Form groups similar to Create, but with Id hidden -->
+    <div class="form-group">
+        <label asp-for="IsActive" class="control-label">Aktif</label>
+        <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Güncelle" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Listeye Dön</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

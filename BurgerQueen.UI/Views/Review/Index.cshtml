@@ -1,0 +1,35 @@
+﻿@model IEnumerable<BurgerQueen.UI.Models.VM.ReviewVM.ReviewListVM>
+
+@{
+    ViewData["Title"] = "Yorumlar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">Tüm Yorumlar</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Başlık</th>
+            <th>Ürün</th>
+            <th>Değerlendirme</th>
+            <th>Kullanıcı</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.ProductName</td>
+                <td>@item.Rating</td>
+                <td>@item.UserName</td>
+                <td>
+                    <a asp-action="EditReview" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Düzenle</a>
+                    <a asp-action="DeleteReview" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

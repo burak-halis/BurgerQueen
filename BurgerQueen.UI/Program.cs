@@ -65,6 +65,7 @@ builder.Services.AddScoped<ISauceService, SauceService>();
 builder.Services.AddScoped<ISideItemService, SideItemService>();
 builder.Services.AddScoped<IEFContext, BaseContext>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 
 var app = builder.Build();

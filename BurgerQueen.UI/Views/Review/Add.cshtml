@@ -1,0 +1,42 @@
+﻿@model BurgerQueen.UI.Models.VM.ReviewVM.AddReviewVM
+
+@{
+    ViewData["Title"] = "Yorum Ekle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>@Model.ProductName için Yorum Ekle</h1>
+
+<form asp-action="AddReview">
+    <input type="hidden" asp-for="ProductId" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Content" class="control-label"></label>
+        <textarea asp-for="Content" class="form-control"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Rating" class="control-label">Değerlendirme (1-5)</label>
+        <select asp-for="Rating" class="form-control">
+            @for (int i = 1; i <= 5; i++)
+            {
+                <option value="@i">@i</option>
+            }
+        </select>
+        <span asp-validation-for="Rating" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Yorumu Gönder" class="btn btn-primary" />
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

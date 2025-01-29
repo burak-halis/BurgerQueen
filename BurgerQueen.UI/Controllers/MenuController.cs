@@ -1,6 +1,7 @@
 ﻿using BurgerQueen.Entity;
 using BurgerQueen.Services.Abstracts;
 using BurgerQueen.Shared.DTOs;
+using BurgerQueen.UI.Models.VM.MenuVM;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -71,7 +72,19 @@ namespace BurgerQueen.UI.Controllers
             {
                 return NotFound();
             }
-            return View(menu.ToMenuUpdateVM()); // DTO'dan ViewModel'e dönüşüm
+
+            // DTO'dan ViewModel'e dönüşüm burada yapılır
+            var menuVM = new MenuUpdateVM
+            {
+                Id = menu.Id,
+                Name = menu.Name,
+                Description = menu.Description,
+                TotalPrice = menu.TotalPrice,
+                ImagePath = menu.ImagePath,
+                MenuType = menu.MenuType
+            };
+
+            return View(menuVM);
         }
 
         [HttpPost]

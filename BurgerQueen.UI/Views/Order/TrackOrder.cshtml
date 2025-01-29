@@ -1,0 +1,24 @@
+﻿@model BurgerQueen.UI.Models.VM.OrderVM.OrderUpdateVM
+
+@{
+    ViewData["Title"] = "Sipariş Takibi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">Sipariş Takip</h1>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Sipariş Tarihi:</dt>
+        <dd class="col-sm-9">@Model.OrderDate</dd>
+        <dt class="col-sm-3">Durum:</dt>
+        <dd class="col-sm-9">@Model.Status</dd>
+        <!-- Diğer önemli bilgiler buraya eklenebilir. -->
+    </dl>
+</div>
+
+<!-- Sipariş takip bilgileri buraya eklenebilir, örneğin bir harita veya durum güncellemeleri -->
+
+<div>
+    <a asp-action="Index">Listeye Dön</a>
+</div>

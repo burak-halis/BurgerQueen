@@ -17,5 +17,9 @@ namespace BurgerQueen.Services.Abstracts
         Task<OrderUpdateDTO> GetOrderById(int id);
         Task<List<OrderListDTO>> GetOrdersAll();
         Task<List<OrderItemListDTO>> GetOrderItemsByOrderId(int orderId);
+
+        Task<IEnumerable<OrderListDTO>> GetUserOrders(string userId);
+
+
     }
 }

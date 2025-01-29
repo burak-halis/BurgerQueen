@@ -1,0 +1,37 @@
+﻿@model IEnumerable<BurgerQueen.UI.Models.VM.OrderVM.OrderListVM>
+
+@{
+    ViewData["Title"] = "Sipariş Listesi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">Siparişler</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Sipariş Tarihi</th>
+            <th>Durum</th>
+            <th>Toplam Fiyat</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.OrderDate</td>
+                <td>@item.Status</td>
+                <td>@item.TotalPrice TL</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Detaylar</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Güncelle</a>
+                    }
+                    <a asp-action="TrackOrder" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Takip Et</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

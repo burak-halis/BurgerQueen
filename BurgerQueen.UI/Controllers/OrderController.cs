@@ -2,6 +2,7 @@
 using BurgerQueen.Services.Abstracts;
 using BurgerQueen.Shared.DTOs;
 using BurgerQueen.Shared.Enums;
+using BurgerQueen.UI.Models.VM.OrderVM;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -38,7 +39,18 @@ namespace BurgerQueen.UI.Controllers
 
             var orderVM = new OrderDetailsVM
             {
-                Order = order,
+                Order = new OrderUpdateVM
+                {
+                    Id = order.Id,
+                    DeliveryAddress = order.DeliveryAddress,
+                    ExpectedDeliveryDate = order.ExpectedDeliveryDate,
+                    PaymentMethod = order.PaymentMethod,
+                    OrderNotes = order.OrderNotes,
+                    Status = order.Status,
+                    PaymentStatus = order.PaymentStatus,
+                    OrderDate = order.OrderDate,
+                    TotalPrice = order.TotalPrice
+                },
                 OrderItems = await _orderItemService.GetItemsForOrderAsync(id)
             };
 
@@ -69,7 +81,21 @@ namespace BurgerQueen.UI.Controllers
             {
                 return NotFound();
             }
-            return View(order.ToOrderUpdateVM()); // DTO'dan ViewModel'e dönüşüm
+
+            var orderVM = new OrderUpdateVM
+            {
+                Id = order.Id,
+                DeliveryAddress = order.DeliveryAddress,
+                ExpectedDeliveryDate = order.ExpectedDeliveryDate,
+                PaymentMethod = order.PaymentMethod,
+                OrderNotes = order.OrderNotes,
+                Status = order.Status,
+                PaymentStatus = order.PaymentStatus,
+                OrderDate = order.OrderDate,
+                TotalPrice = order.TotalPrice
+            };
+
+            return View(orderVM);
         }
 
         [HttpPost]
@@ -111,8 +137,20 @@ namespace BurgerQueen.UI.Controllers
                 return NotFound();
             }
 
-            order.Status = OrderStatus.Cancelled;
-            await _orderService.UpdateOrderDTO(order.ToOrderUpdateDTO());
+            var orderUpdateDTO = new OrderUpdateDTO
+            {
+                Id = order.Id,
+                DeliveryAddress = order.DeliveryAddress,
+                ExpectedDeliveryDate = order.ExpectedDeliveryDate,
+                PaymentMethod = order.PaymentMethod,
+                OrderNotes = order.OrderNotes,
+                Status = OrderStatus.Cancelled,
+                PaymentStatus = order.PaymentStatus,
+                OrderDate = order.OrderDate,
+                TotalPrice = order.TotalPrice
+            };
+
+            await _orderService.UpdateOrderDTO(orderUpdateDTO);
             return RedirectToAction(nameof(Index));
         }
 
@@ -130,7 +168,18 @@ namespace BurgerQueen.UI.Controllers
             {
                 return NotFound();
             }
-            return View(order);
+            return View(new OrderUpdateVM
+            {
+                Id = order.Id,
+                DeliveryAddress = order.DeliveryAddress,
+                ExpectedDeliveryDate = order.ExpectedDeliveryDate,
+                PaymentMethod = order.PaymentMethod,
+                OrderNotes = order.OrderNotes,
+                Status = order.Status,
+                PaymentStatus = order.PaymentStatus,
+                OrderDate = order.OrderDate,
+                TotalPrice = order.TotalPrice
+            });
         }
     }
 }

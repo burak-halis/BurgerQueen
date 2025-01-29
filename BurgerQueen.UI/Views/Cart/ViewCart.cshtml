@@ -1,0 +1,65 @@
+﻿@model BurgerQueen.UI.Models.VM.CartVM.CartVM
+
+@{
+    ViewData["Title"] = "Sepet";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">Alışveriş Sepetim</h1>
+
+@if (Model.Items.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Tür</th>
+                <th>Fiyat</th>
+                <th>Miktar</th>
+                <th>Ara Toplam</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <img src="@item.ImagePath" alt="@item.Name" style="height: 50px; width: auto;">
+                        @item.Name
+                    </td>
+                    <td>@item.Type</td>
+                    <td>@item.Price ₺</td>
+                    <td>
+                        <form asp-action="UpdateCartItemQuantity" asp-controller="Cart" method="post">
+                            <input type="hidden" name="itemId" value="@item.Id" />
+                            <input type="number" name="quantity" value="@item.Quantity" min="1" style="width: 50px;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Güncelle</button>
+                        </form>
+                    </td>
+                    <td>@item.SubTotal ₺</td>
+                    <td>
+                        <form asp-action="RemoveFromCart" asp-controller="Cart" method="post" onsubmit="return confirm('Bu ürünü sepetten çıkarmak istediğinize emin misiniz?');">
+                            <input type="hidden" name="cartItemId" value="@item.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger">Kaldır</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row">
+        <div class="col-6">
+            <h4>Toplam Fiyat: @Model.TotalPrice ₺</h4>
+        </div>
+        <div class="col-6 text-right">
+            <a asp-action="Checkout" class="btn btn-primary">Ödeme Yap</a>
+        </div>
+    </div>
+}
+else
+{
+    <p>Sepetinizde ürün bulunmamaktadır.</p>
+    <a asp-action="Index" asp-controller="Home" class="btn btn-primary">Alışverişe Devam Et</a>
+}

@@ -1,6 +1,7 @@
 ﻿using BurgerQueen.Entity;
 using BurgerQueen.Services.Abstracts;
 using BurgerQueen.Shared.DTOs;
+using BurgerQueen.UI.Models.VM.FryVM;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -58,7 +59,22 @@ namespace BurgerQueen.UI.Controllers
             {
                 return NotFound();
             }
-            return View(fry.ToFryUpdateVM()); // DTO'dan ViewModel'e dönüşüm
+
+            // DTO'dan ViewModel'e dönüşüm burada yapılır
+            var fryVM = new FryUpdateVM
+            {
+                Id = fry.Id,
+                Name = fry.Name,
+                Description = fry.Description,
+                Price = fry.Price,
+                ImagePath = fry.ImagePath,
+                IsSpicy = fry.IsSpicy,
+                Calories = fry.Calories,
+                Sizes = fry.Sizes,
+                Type = fry.Type
+            };
+
+            return View(fryVM);
         }
 
         [HttpPost]
