@@ -10,18 +10,44 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h4>@Model.FirstName @Model.LastName</h4>
+                    <h4>@ViewData["Title"]</h4>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">@Model.UserName</h5>
-                    <p class="card-text"><strong>Email:</strong> @Model.Email</p>
-                    <p class="card-text"><strong>Kullanıcı ID:</strong> @Model.Id</p>
-                    <div class="text-center">
-                        <a asp-action="EditProfile" asp-route-id="@Model.Id" class="btn btn-primary">Profili Düzenle</a>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a asp-action="DeleteUser" asp-route-id="@Model.Id" class="btn btn-danger">Kullanıcıyı Sil</a>
-                        }
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                            {
+                                <img src="@Url.Content("~/" + Model.ProfilePictureUrl)" alt="Profil Resmi" class="img-fluid rounded-circle mb-3" style="max-width: 150px;" />
+                            }
+                            else
+                            {
+                                <p>Profil resmi bulunamadı.</p>
+                            }
+                        </div>
+                        <div class="col-md-8">
+                            <h5>@Model.FirstName @Model.LastName</h5>
+                            <p><strong>Kullanıcı Adı:</strong> @Model.UserName</p>
+                            <p><strong>E-posta:</strong> @Model.Email</p>
+                            @if (!string.IsNullOrEmpty(Model.Address))
+                            {
+                                <p><strong>Adres:</strong> @Model.Address</p>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                            {
+                                <p><strong>Telefon:</strong> @Model.PhoneNumber</p>
+                            }
+                            @if (Model.DateOfBirth.HasValue)
+                            {
+                                <p><strong>Doğum Tarihi:</strong> @Model.DateOfBirth.Value.ToString("d")</p>
+                            }
+                            @if (Model.Gender.HasValue)
+                            {
+                                <p><strong>Cinsiyet:</strong> @Html.DisplayFor(model => Model.Gender)</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a asp-action="EditProfile" class="btn btn-primary">Profili Düzenle</a>
                     </div>
                 </div>
             </div>

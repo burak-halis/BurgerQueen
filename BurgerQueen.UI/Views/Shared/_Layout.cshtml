@@ -44,7 +44,12 @@
                                     <li><a class="dropdown-item" asp-controller="ApplicationUser" asp-action="EditProfile">Profili Düzenle</a></li>
                                     <li><a class="dropdown-item" asp-controller="ApplicationUser" asp-action="ChangePassword">Şifre Değiştir</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="ApplicationUser" asp-action="Logout">Çıkış Yap</a></li>
+                                    <li>
+                                        <form asp-controller="ApplicationUser" asp-action="Logout" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item">Çıkış Yap</button>
+                                        </form>
+                                    </li>
                                 </ul>
                             </li>
                         }

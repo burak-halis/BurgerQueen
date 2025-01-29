@@ -19,6 +19,10 @@ namespace BurgerQueen.Mapping
             builder.Property(au => au.LastName)
                 .HasMaxLength(50);
 
+            builder.Property(u => u.Gender)
+                .HasConversion<string>()
+                .IsRequired(); // IsRequired(false) yerine IsRequired()
+
             builder.Property(au => au.DateOfBirth);
 
             builder.Property(au => au.Address)

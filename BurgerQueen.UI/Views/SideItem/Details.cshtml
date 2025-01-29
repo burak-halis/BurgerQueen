@@ -1,0 +1,32 @@
+﻿@model BurgerQueen.UI.Models.VM.SideItemVM.SideItemDetailsVM
+
+@{
+    ViewData["Title"] = "Yan Ürün Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">@Model.Name</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <img src="@Model.ImagePath" class="img-fluid rounded" alt="@Model.Name">
+    </div>
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-3">Açıklama:</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+            <dt class="col-sm-3">Fiyat:</dt>
+            <dd class="col-sm-9">@Model.Price TL</dd>
+            <dt class="col-sm-3">Kalori:</dt>
+            <dd class="col-sm-9">@(Model.Calories ?? 0) Kalori</dd>
+            <dt class="col-sm-3">Vejetaryen:</dt>
+            <dd class="col-sm-9">@(Model.IsVegetarian ? "Evet" : "Hayır")</dd>
+            <dt class="col-sm-3">Glutensiz:</dt>
+            <dd class="col-sm-9">@(Model.IsGlutenFree ? "Evet" : "Hayır")</dd>
+        </dl>
+        <div class="btn-group" role="group">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Düzenle</a>
+            <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+        </div>
+    </div>
+</div>

@@ -1,72 +1,84 @@
-﻿@using BurgerQueen.UI.Models.VM.ApplicationUserVM
+﻿@using BurgerQueen.Shared.Enums
+@using BurgerQueen.UI.Models.VM.ApplicationUserVM
 @model EditProfileVM
 
 @{
     ViewData["Title"] = "Profil Düzenle";
+    DateTime minDate = DateTime.Now.AddYears(-100); // Örnek, çok eski tarihler kabul edilebilir
 }
 
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-6">
             <div class="card">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header">
                     <h4>@ViewData["Title"]</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="EditProfile" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <input type="hidden" asp-for="Id" />
 
-                        <div class="form-group">
-                            <label asp-for="Email" class="control-label">E-posta Adresi</label>
-                            <input asp-for="Email" class="form-control" placeholder="E-posta Adresi" />
+                        <div class="form-group mb-3">
+                            <label asp-for="Email">E-posta</label>
+                            <input asp-for="Email" class="form-control" />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label asp-for="FirstName" class="control-label">Ad</label>
-                                <input asp-for="FirstName" class="form-control" placeholder="Adınız" />
-                                <span asp-validation-for="FirstName" class="text-danger"></span>
-                            </div>
-                            <div class="form-group col-md-6">
-                                <label asp-for="LastName" class="control-label">Soyad</label>
-                                <input asp-for="LastName" class="form-control" placeholder="Soyadınız" />
-                                <span asp-validation-for="LastName" class="text-danger"></span>
-                            </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="FirstName">Ad</label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label asp-for="Address" class="control-label">Adres</label>
-                            <input asp-for="Address" class="form-control" placeholder="Adres" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="LastName">Soyad</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="UserName">Kullanıcı Adı</label>
+                            <input asp-for="UserName" class="form-control" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Gender">Cinsiyet</label>
+                            <select asp-for="Gender" class="form-control">
+                                <option value="">Cinsiyet Seçiniz</option>
+                                <option value="Male" selected="@(Model.Gender == Gender.Male)">Erkek</option>
+                                <option value="Female" selected="@(Model.Gender == Gender.Female)">Kadın</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Address">Adres</label>
+                            <input asp-for="Address" class="form-control" />
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label asp-for="PhoneNumber" class="control-label">Telefon Numarası</label>
-                            <input asp-for="PhoneNumber" class="form-control" placeholder="Telefon Numarası" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="PhoneNumber">Telefon Numarası</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
                             <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label asp-for="DateOfBirth" class="control-label">Doğum Tarihi</label>
-                            <input asp-for="DateOfBirth" class="form-control" type="date" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="DateOfBirth">Doğum Tarihi</label>
+                            <input asp-for="DateOfBirth" type="date" class="form-control" max="@DateTime.Now.ToString("yyyy-MM-dd")" min="@minDate.ToString("yyyy-MM-dd")" />
                             <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label asp-for="ProfilePicture" class="control-label">Profil Resmi</label>
-                            <input asp-for="ProfilePicture" class="form-control-file" type="file" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="ProfilePicture">Profil Resmi</label>
+                            <input asp-for="ProfilePicture" type="file" class="form-control" />
                             <span asp-validation-for="ProfilePicture" class="text-danger"></span>
                         </div>
-                        <div class="form-group text-center">
-                            @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
-                            {
-                                <img src="@Model.ProfilePictureUrl" alt="Mevcut Profil Resmi" class="img-thumbnail rounded-circle" style="max-width: 200px;">
-                            }
-                            else
-                            {
-                                <p class="text-muted">Henüz bir profil resmi yüklenmemiş.</p>
-                            }
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-success btn-lg">Profili Güncelle</button>
-                        </div>
+
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
                     </form>
                 </div>
             </div>

@@ -1,0 +1,82 @@
+﻿@model BurgerQueen.UI.Models.VM.MenuVM.MenuItemsVM
+
+@{
+    ViewData["Title"] = "Menü Öğeleri";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">@ViewData["MenuName"] Menüsü Öğeleri</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Burgerler</h4>
+        @if (Model.Burgers.Any())
+        {
+            <ul class="list-group">
+                @foreach (var burger in Model.Burgers)
+                {
+                    <li class="list-group-item">@burger.BurgerName</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Bu menüde burger yok.</p>
+        }
+    </div>
+    <div class="col-md-6">
+        <h4>İçecekler</h4>
+        @if (Model.Drinks.Any())
+        {
+            <ul class="list-group">
+                @foreach (var drink in Model.Drinks)
+                {
+                    <li class="list-group-item">@drink.DrinkName</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Bu menüde içecek yok.</p>
+        }
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h4>Patates Kızartmaları</h4>
+        @if (Model.Fries.Any())
+        {
+            <ul class="list-group">
+                @foreach (var fry in Model.Fries)
+                {
+                    <li class="list-group-item">@fry.FryName</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Bu menüde patates kızartması yok.</p>
+        }
+    </div>
+    <div class="col-md-6">
+        <h4>Yan Ürünler</h4>
+        @if (Model.SideItems.Any())
+        {
+            <ul class="list-group">
+                @foreach (var sideItem in Model.SideItems)
+                {
+                    <li class="list-group-item">@sideItem.SideItemName</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>Bu menüde yan ürün yok.</p>
+        }
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Menü Listesine Dön</a>
+</div>

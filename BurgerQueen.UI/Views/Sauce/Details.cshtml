@@ -1,0 +1,26 @@
+﻿@model BurgerQueen.UI.Models.VM.SauceVM.SauceDetailsVM
+
+@{
+    ViewData["Title"] = "Sos Detayları";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">@Model.Name</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <img src="@Model.ImagePath" class="img-fluid rounded" alt="@Model.Name">
+    </div>
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-3">Açıklama:</dt>
+            <dd class="col-sm-9">@Model.Description</dd>
+            <dt class="col-sm-3">Fiyat:</dt>
+            <dd class="col-sm-9">@Model.Price TL</dd>
+        </dl>
+        <div class="btn-group" role="group">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Düzenle</a>
+            <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+        </div>
+    </div>
+</div>

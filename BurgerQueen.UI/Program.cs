@@ -20,14 +20,14 @@ builder.Services.AddDbContext<BaseContext>(options =>
 // Identity configuration
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedAccount = false; // E-posta onayý gerekli deðil
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
 })
-.AddRoles<IdentityRole>() // Bu satýrý ekleyin
+.AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<BaseContext>()
 .AddDefaultTokenProviders();
 
@@ -41,8 +41,9 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Lockout.AllowedForNewUsers = true;
 });
 
-builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
-    options.TokenLifespan = TimeSpan.FromHours(3));
+// E-posta doðrulama ve 2FA ile ilgili konfigürasyonlarý kaldýrdýk
+//builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+//    options.TokenLifespan = TimeSpan.FromHours(3));
 
 // Registering services
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -63,9 +64,25 @@ builder.Services.AddScoped<IOrderStatusHistoryService, OrderStatusHistoryService
 builder.Services.AddScoped<ISauceService, SauceService>();
 builder.Services.AddScoped<ISideItemService, SideItemService>();
 builder.Services.AddScoped<IEFContext, BaseContext>();
-builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var roleService = services.GetRequiredService<IRoleService>();
+        await roleService.CreateRoles();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Rollerin oluþturulmasý sýrasýnda bir hata oluþtu.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

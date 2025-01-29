@@ -2,12 +2,12 @@
 using BurgerQueen.Entity;
 using BurgerQueen.Services.Abstracts;
 using BurgerQueen.Shared.DTOs;
+using BurgerQueen.Shared.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BurgerQueen.Services.Concretes
@@ -63,7 +63,6 @@ namespace BurgerQueen.Services.Concretes
             return user != null ? ToListDTO(user) : null;
         }
 
-        // Dönüş tipi Task<IdentityResult> olarak güncellendi
         public async Task<IdentityResult> CreateUserAsync(ApplicationUserAddDTO userDTO)
         {
             var user = new ApplicationUser
@@ -77,7 +76,6 @@ namespace BurgerQueen.Services.Concretes
             return await _userManager.CreateAsync(user, userDTO.Password);
         }
 
-        // UpdateUserAsync metodunun dönüş tipi Task<IdentityResult> olarak değiştirildi
         public async Task<IdentityResult> UpdateUserAsync(ApplicationUserUpdateDTO userDTO)
         {
             var user = await _userManager.FindByIdAsync(userDTO.Id);
@@ -119,6 +117,22 @@ namespace BurgerQueen.Services.Concretes
                 FirstName = user.FirstName,
                 LastName = user.LastName
             };
+        }
+
+        public async Task UpdateUserGender(string userId, Gender gender)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                user.Gender = gender;
+                await _userManager.UpdateAsync(user);
+            }
+        }
+
+        public async Task<Gender?> GetUserGender(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            return user?.Gender;
         }
     }
 }

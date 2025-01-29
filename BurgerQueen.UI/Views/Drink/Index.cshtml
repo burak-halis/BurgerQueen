@@ -1,0 +1,33 @@
+﻿@model IEnumerable<BurgerQueen.UI.Models.VM.DrinkVM.DrinkListVM>
+
+@{
+    ViewData["Title"] = "İçecek Listesi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="text-center mb-4">İçecekler</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Yeni İçecek Ekle</a>
+</p>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <img src="@item.ImagePath" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="card-text"><strong>Fiyat:</strong> @item.Price TL</p>
+                    <p class="card-text"><strong>Şekerli:</strong> @(item.IsSugary ? "Evet" : "Hayır")</p>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">Detaylar</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Düzenle</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Sil</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

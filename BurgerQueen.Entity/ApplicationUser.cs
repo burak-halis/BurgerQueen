@@ -6,6 +6,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using BurgerQueen.Shared.Enums;
 
 namespace BurgerQueen.Entity
 {
@@ -14,11 +16,12 @@ namespace BurgerQueen.Entity
         // Kullanıcı profili bilgileri
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
         public string? Country { get; set; }
         public string? PhoneNumber { get; set; } // IdentityUser'da zaten var ama burada tekrar belirtiyoruz
+        public Gender Gender { get; set; }
 
         // Kullanıcının tercihleri veya ek bilgiler
         public string? ProfilePictureUrl { get; set; }
